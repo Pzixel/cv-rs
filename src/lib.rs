@@ -92,4 +92,6 @@ impl<T: Copy> CResult<T> {
         };
         result
     }
+
+    pub fn from_callback_
 }

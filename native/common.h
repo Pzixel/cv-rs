@@ -81,6 +81,16 @@ struct Result
     }
 };
 
+struct EmptyResult {
+    static char* TryExecute(std::function<void()> function) {
+        auto result = Result<void*>::FromFunction([function](){
+            function();
+            return nullptr;
+        });
+        return const_cast<char*>(result.error);
+    }
+};
+
 template<typename T>
 struct CVec
 {

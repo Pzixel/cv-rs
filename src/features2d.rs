@@ -1,4 +1,5 @@
 //! Provide the type that encapsulates all the parameters of the MSER extraction algorithm
+use super::*;
 use super::core::*;
 use std::os::raw::*;
 
@@ -30,14 +31,15 @@ extern "C" {
         mask: *const CMat,
         keypoints: *mut CVec<KeyPoint>,
         descriptors: *mut CMat,
-        use_provided_keypoints: bool
+        use_provided_keypoints: bool,
+        result: *mut CResult<()>
     );
 }
 
 /// Basic trait for 2D image feature detectors and descriptor extractors
 pub trait Feature2D {
     /// Detects keypoints and computes the descriptors
-    fn detect_and_compute(&self, image: &Mat, mask: &Mat) -> (Vec<KeyPoint>, Mat);
+    fn detect_and_compute(&self, image: &Mat, mask: &Mat) -> Result<(Vec<KeyPoint>, Mat), String>;
 }
 
 /// Maximally stable extremal region extractor.
@@ -89,13 +91,16 @@ impl MSER {
 }
 
 impl Feature2D for MSER {
-    fn detect_and_compute(&self, image: &Mat, mask: &Mat) -> (Vec<KeyPoint>, Mat) {
+    fn detect_and_compute(&self, image: &Mat, mask: &Mat) -> Result<(Vec<KeyPoint>, Mat), String> {
         let mut keypoints = CVec::<KeyPoint>::default();
         let descriptors = Mat::new();
-        unsafe {
-            cv_detect_and_compute(self.value, image.inner, mask.inner, &mut keypoints, descriptors.inner, false);
+        let result: Result<(), String> = CResult::<()>::from_callback(|res| unsafe {
+            cv_detect_and_compute(self.value, image.inner, mask.inner, &mut keypoints, descriptors.inner, false, res);
+        }).into();
+        match result {
+            Ok(_) => Ok((keypoints.unpack(), descriptors)),
+            Err(e) => Err(e)
         }
-        (keypoints.unpack(), descriptors)
     }
 }
 

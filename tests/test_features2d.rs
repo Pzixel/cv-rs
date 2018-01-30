@@ -20,7 +20,7 @@ fn mser_lenna_detect_and_compute() {
     let lenna = load_lenna();
     let mask = Mat::new();
     let mser: MSER = MSERBuilder::default().into();
-    let (keypoints, descriptors) = mser.detect_and_compute(&lenna, &mask);
+    let (keypoints, descriptors) = mser.detect_and_compute(&lenna, &mask).unwrap();
     assert_ne!(keypoints.len(), 0);
     assert_ne!(descriptors.rows, 0);
     assert_ne!(descriptors.cols, 0);
