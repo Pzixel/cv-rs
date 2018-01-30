@@ -92,4 +92,13 @@ impl<T: Copy> CResult<T> {
         };
         result
     }
+
+    pub fn from_callback_inited<F: FnOnce(*mut CResult<T>)>(init_value: T, func: F) -> CResult<T> {
+        let mut result = CResult {value: init_value, error: ::std::ptr::null_mut::<_>()};
+        unsafe {
+            let result_ref: *mut CResult<T> = &mut result;
+            func(result_ref);
+        };
+        result
+    }
 }
