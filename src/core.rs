@@ -244,6 +244,15 @@ pub struct CVec<T: Sized + NestedVec> {
     size: usize,
 }
 
+////impl<T: Sized + NestedVec> CVec<T> {
+////    pub fn pack(vector: &Vec<T>) -> Self {
+////        Self {
+////            array: vector.as_ptr() as *mut _,
+////            size: vector.len()
+////        }
+////    }
+//}
+
 // Unsafe because CVec is not guaranteed to contain valid pointer and size
 unsafe fn unpack<T: NestedVec, U, F>(v: &CVec<T>, mut f: F) -> Vec<U>
 where
@@ -272,6 +281,34 @@ impl<T: Copy> Unpack for T {
         *self
     }
 }
+
+fn pack<T: NestedVec, U, F>(v: &Vec<T>, mut f: F) -> Vec<U>
+    where
+        F: FnMut(&T) -> U,
+{
+    v.iter().map(|i| f(&i)).collect()
+}
+
+pub trait Pack {
+    type Out;
+    fn pack(&self) -> Self::Out;
+}
+
+impl<T: Pack + NestedVec> Pack for CVec<T> {
+    type Out = Vec<T::Out>;
+    fn pack(&self) -> Self::Out {
+        unsafe { pack(self, |e| e.pack()) }
+    }
+}
+
+impl<T: Copy> Pack for T {
+    type Out = T;
+    fn pack(&self) -> Self::Out {
+        *self
+    }
+}
+
+
 
 pub trait NestedVec {
     const LEVEL: u32;

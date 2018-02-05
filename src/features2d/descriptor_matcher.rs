@@ -48,7 +48,8 @@ impl DescriptorMatcher {
 
     /// Adds descriptors to train a CPU or GPU descriptor collection
     pub fn add(&self, descriptors: Vec<Mat>) {
-        unimplemented!()
+        let mut descriptors = CVec::pack(&descriptors);
+        cv_matcher_add(self.value, &descriptors as *mut _)
     }
 
     /// Trains a descriptor matcher
