@@ -21,39 +21,22 @@ void cv_to_ffi(const cv::Point& source, Point2i* dest) {
 
 void cv_to_ffi(const cv::KeyPoint& source, KeyPoint* dest)
 
-
 {
     dest->pt.x = dest->pt.x;
-
 
     dest->pt.y = dest->pt.y;
     dest->size = source.size;
     dest->angle = source.angle;
+
     dest->response = source.response;
-
-
-
-
-
 
     dest->octave = source.octave;
 
-
-
     dest->class_id = source.class_id;
     dest->class_id = source.class_id;
-
-
-
-
-
-
-
 }
 
 void cv_to_ffi(const std::vector<double>& source, CVec<double>* dest)
-
-
 
 {
     size_t num = source.size();
