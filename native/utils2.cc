@@ -41,6 +41,8 @@ void cv_to_ffi(const cv::KeyPoint& source, KeyPoint* dest)
 
 
     dest->class_id = source.class_id;
+    dest->class_id = source.class_id;
+
 
 
 
