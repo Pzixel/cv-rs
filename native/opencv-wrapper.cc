@@ -593,7 +593,7 @@ void cv_sift_detect_and_compute(cv::Ptr<cv::xfeatures2d::SIFT>* detector,
     cv_to_ffi(keypoints_vector, keypoints);
 }
 
-void* cv_matcher_new(const char* descriptorMatcherType) {
+void* cv_matcher_new(int descriptorMatcherType) {
     auto result = cv::DescriptorMatcher::create(descriptorMatcherType);
     return new cv::Ptr<cv::DescriptorMatcher>(result);
 }

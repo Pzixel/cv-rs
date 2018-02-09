@@ -1,13 +1,13 @@
 //! Provide types for matching keypoint descriptors
 use core::*;
-use std::ffi::*;
-use std::os::raw::{c_char, c_int};
-
+use num::ToPrimitive;
+use std::os::raw::c_int;
 
 enum CDescriptorMatcher {}
 
 extern "C" {
-    fn cv_matcher_new(descriptor_matcher_type: *const c_char) -> *mut CDescriptorMatcher;
+    fn cv_matcher_flann_new() -> *mut CDescriptorMatcher;
+    fn cv_matcher_new(descriptor_matcher_type: c_int) -> *mut CDescriptorMatcher;
     fn cv_matcher_drop(descriptor_matcher: *mut CDescriptorMatcher);
     fn cv_matcher_add(descriptor_matcher: *mut CDescriptorMatcher, descriptors: *const CVecView<*mut CMat>);
     fn cv_matcher_train(descriptor_matcher: *mut CDescriptorMatcher);
@@ -41,27 +41,27 @@ pub struct DMatch {
     train_idx: i32,
 }
 
-/// Descriptor matcher type
-#[derive(Debug, Clone, Copy)]
-#[allow(missing_docs)]
-pub enum DescriptorMatcherType {
-    BruteForce,
-    BruteForceL1,
-    BruteForceHamming,
-    BruteForceHamming2,
-    FlannBased,
+
+/// Type for matching keypoint descriptors
+#[repr(C)]
+#[derive(Default, Debug, Clone, Copy)]
+pub struct DMatch {
+    distance: f32,
+    img_idx: i32,
+    query_idx: i32,
+    train_idx: i32,
 }
 
-impl DescriptorMatcherType {
-    pub(crate) fn as_str(&self) -> &'static str {
-        match *self {
-            DescriptorMatcherType::BruteForce => "BruteForce",
-            DescriptorMatcherType::BruteForceL1 => "BruteForce-L1",
-            DescriptorMatcherType::BruteForceHamming => "BruteForce-Hamming",
-            DescriptorMatcherType::BruteForceHamming2 => "BruteForce-Hamming(2)",
-            DescriptorMatcherType::FlannBased => "FlannBased",
-        }
-    }
+/// Descriptor matcher type
+#[derive(Debug, PartialEq, Clone, Copy, ToPrimitive)]
+#[allow(missing_docs)]
+pub enum DescriptorMatcherType {
+    FlannBased = 1,
+    BruteForce = 2,
+    BruteForceL1 = 3,
+    BruteForceHamming = 4,
+    BruteForceHammingLut = 5,
+    BruteForceSL2 = 6,
 }
 
 /// Type for matching keypoint descriptors
@@ -81,8 +81,7 @@ impl Drop for DescriptorMatcher {
 impl DescriptorMatcher {
     /// Creates a descriptor matcher of a given type with the default parameters (using default constructor).
     pub fn new(descriptor_matcher_type: DescriptorMatcherType) -> DescriptorMatcher {
-        let descriptor_matcher_type = CString::new(descriptor_matcher_type.as_str()).unwrap();
-        let value = unsafe { cv_matcher_new(descriptor_matcher_type.as_ptr()) };
+        let value = unsafe { cv_matcher_new(descriptor_matcher_type.to_i32().unwrap()) };
         DescriptorMatcher { value: value }
     }
 
