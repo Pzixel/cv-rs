@@ -51,6 +51,43 @@ pub enum DescriptorMatcherType {
     BruteForceHamming2,
     FlannBased,
 }
+/// Algorithm used by FLANN index
+#[derive(Debug, Clone, Copy)]
+#[repr(C)]
+pub enum FlannCentersInit {
+    //TODO do
+}
+
+/// Algorithm used by FLANN index
+#[derive(Debug, Clone, Copy)]
+pub enum FlannIndexAlgorithm {
+    Autotuned {
+        target_precision: f32,
+        build_weight: f32,
+        memory_weight: f32,
+        sample_fraction: f32,
+    },
+    Composite {
+        trees: i32,
+        branching: i32,
+        iterations: i32,
+        centers_init: FlannCentersInit,
+        cb_index: f32,
+    },
+    HierarchicalClustering {
+        branching: i32,
+        centers_init: FlannCentersInit,
+        trees: i32,
+        leaf_size: i32,
+    },
+    KDTree(i32),
+    KMeans {
+        branching: i32,
+        iterations: i32,
+        centers_init: FlannCentersInit,
+        cb_index: f32,
+    },
+}
 
 impl DescriptorMatcherType {
     pub(crate) fn as_str(&self) -> &'static str {
