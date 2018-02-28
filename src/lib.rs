@@ -16,6 +16,7 @@
 #![deny(unused_qualifications)]
 
 extern crate bytes;
+extern crate cv_rs_sys;
 #[macro_use]
 extern crate failure;
 

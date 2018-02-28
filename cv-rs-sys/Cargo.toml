@@ -1,0 +1,9 @@
+[package]
+name = "cv-rs-sys"
+version = "0.1.0"
+authors = ["pzixel <pzixel@gmail.com>"]
+
+[dependencies]
+
+[build-dependencies]
+cc = "1"
